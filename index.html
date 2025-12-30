@@ -3,202 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyHabit Pro</title>
+    <title>MyHabit Pro Sync</title>
     
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#6366f1">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
-        :root { --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --accent: #6366f1; --border: #f1f5f9; --pattern: none; }
-        [data-theme="monochrome"] { --bg: #121212; --card: #1e1e1e; --text: #ffffff; --accent: #ffffff; --border: #333333; }
-        [data-theme="stripes"] { --bg: #f0f4f8; --card: #ffffff; --text: #334e68; --accent: #102a43; --border: #d9e2ec; --pattern: repeating-linear-gradient(45deg, #e1e8f0 0, #e1e8f0 10px, #f0f4f8 10px, #f0f4f8 20px); }
-        [data-theme="floral"] { --bg: #fff0f6; --card: #ffffff; --text: #a61e4d; --accent: #f06595; --border: #ffdeeb; --pattern: radial-gradient(#fcc2d7 10%, transparent 10%), radial-gradient(#fcc2d7 10%, transparent 10%); }
-
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); background-image: var(--pattern); background-size: 40px 40px; color: var(--text); margin: 0; padding: 20px 15px 40px 15px; transition: 0.4s; }
-        .app-container { width: 100%; max-width: 500px; margin: auto; }
-        .card { background: var(--card); padding: 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); position: relative; }
-        
-        .stat-label { font-size: 10px; text-transform: uppercase; font-weight: 800; opacity: 0.6; margin-bottom: 5px; }
-        .stat-value { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
-        .progress-bar-small { height: 8px; background: var(--border); border-radius: 10px; margin-top: 8px; overflow: hidden; }
-        .progress-fill { height: 100%; transition: width 0.8s ease-in-out; }
-
-        .habit-item { padding: 18px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 15px; background: var(--card); position: relative; }
-        .category-label { font-size: 9px; text-transform: uppercase; font-weight: 800; margin-bottom: 8px; display: inline-block; padding: 3px 10px; border-radius: 20px; }
-        
-        /* Layout Kontrol: Centang & Hapus */
-        .habit-controls { display: flex; flex-direction: column; align-items: center; gap: 12px; }
-        .checkbox { width: 30px; height: 30px; border: 2.5px solid; border-radius: 10px; cursor: pointer; }
-        .done-check { display: flex; align-items: center; justify-content: center; color: white; }
-        .done-check::after { content: '✓'; font-weight: 900; }
-        
-        /* Tombol Hapus di Atas Kotak Centang */
-        .btn-delete-top { font-size: 18px; color: #fb7185; cursor: pointer; font-weight: 400; line-height: 1; opacity: 0.4; transition: 0.2s; padding: 5px; }
-        .btn-delete-top:hover { opacity: 1; transform: scale(1.2); }
-
-        .quote-display { text-align: center; margin-bottom: 5px; font-weight: 700; color: var(--accent); font-size: 1.1rem; min-height: 45px; }
-        .manage-quotes { text-align: center; font-size: 10px; cursor: pointer; opacity: 0.5; margin-bottom: 25px; text-decoration: underline; }
-        
-        .theme-picker { display: flex; gap: 12px; margin-bottom: 25px; justify-content: center; }
-        .theme-dot { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-
-        input, select { padding: 14px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
-        .btn-add { background: var(--accent); color: white; padding: 15px; border: none; border-radius: 16px; font-weight: bold; cursor: pointer; }
-
-        #quoteModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        .modal-content { background: var(--card); padding: 30px; border-radius: 32px; width: 85%; max-width: 400px; }
+        :root { --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --accent: #6366f1; --border: #f1f5f9; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px 15px; }
+        .card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-sync { background: #10b981; color: white; }
+        .habit-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 10px; }
+        .checkbox { width: 30px; height: 30px; border: 2px solid var(--accent); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .checked { background: var(--accent); color: white; }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="theme-picker">
-        <div class="theme-dot" style="background:#6366f1" onclick="setTheme('light')"></div>
-        <div class="theme-dot" style="background:#121212" onclick="setTheme('monochrome')"></div>
-        <div class="theme-dot" style="background:#334e68" onclick="setTheme('stripes')"></div>
-        <div class="theme-dot" style="background:#f06595" onclick="setTheme('floral')"></div>
-    </div>
-
-    <div class="quote-display" id="dailyQuote">"Memuat..."</div>
-    <div class="manage-quotes" onclick="toggleModal(true)">KELOLA MOTIVASI</div>
+<div style="max-width: 500px; margin: auto;">
+    <h2 style="text-align:center">MyHabit Cloud ☁️</h2>
 
     <div class="card">
-        <div class="stat-label">Progress Umum</div>
-        <div class="stat-value" id="overallProgress">0%</div>
-        <div class="progress-bar-small"><div id="overallFill" class="progress-fill" style="background:var(--accent)"></div></div>
-    </div>
-
-    <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <button onclick="changeDate(-1)" style="border:none; background:none; color:var(--text); font-size:1.5rem;">◀</button>
-            <span id="displayDate" style="font-weight:800;"></span>
-            <button onclick="changeDate(1)" style="border:none; background:none; color:var(--text); font-size:1.5rem;">▶</button>
+        <h4 style="margin:0 0 10px 0">🔐 Login & Sync</h4>
+        <input type="text" id="syncID" placeholder="ID Sinkron (Bebas)">
+        <input type="password" id="syncPass" placeholder="Password (Kunci Data)">
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-sync" onclick="saveToCloud()">SIMPAN KE CLOUD</button>
+            <button class="btn btn-primary" onclick="loadFromCloud()">AMBIL DARI CLOUD</button>
         </div>
-
-        <div style="display:flex; flex-direction:column; gap:12px;">
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="habitInput" placeholder="Kebiasaan baru..." style="flex:1">
-                <input type="color" id="habitColor" value="#6366f1" style="width:55px; height:55px; border-radius:16px; border:none;">
-            </div>
-            <select id="habitCategory"></select>
-            <input type="number" id="habitGoal" placeholder="Target hari per bulan">
-            <button class="btn-add" onclick="addHabit()">TAMBAH</button>
-        </div>
-        <div id="habitList" style="margin-top:25px;"></div>
     </div>
 
     <div class="card">
-        <canvas id="habitChart" height="220"></canvas>
+        <input type="text" id="habitInput" placeholder="Kebiasaan baru...">
+        <button class="btn btn-primary" onclick="addHabit()">TAMBAH HABIT</button>
     </div>
-</div>
 
-<div id="quoteModal">
-    <div class="modal-content">
-        <h3>Motivasi Saya</h3>
-        <div style="display:flex; gap:10px; margin-bottom:15px;"><input type="text" id="newQuoteInput" style="flex:1"><button onclick="addQuote()">+</button></div>
-        <div id="quoteList"></div>
-        <button onclick="toggleModal(false)" style="width:100%; margin-top:20px;">TUTUP</button>
-    </div>
+    <div id="habitList"></div>
 </div>
 
 <script>
-    let habits = JSON.parse(localStorage.getItem('habitsVFinal3')) || [];
-    let categories = JSON.parse(localStorage.getItem('catsVFinal3')) || ["Kesehatan", "Belajar"];
-    let myQuotes = JSON.parse(localStorage.getItem('quotesVFinal3')) || ["Satu langkah kecil setiap hari."];
-    let currentViewDate = new Date();
-    let myChart;
+    // --- KONFIGURASI ---
+    const SUPABASE_URL = 'https://vhkirvkpvpzedenoflru.supabase.co'; 
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoa2lydmtwdnB6ZWRlbm9mbHJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNjAyNzksImV4cCI6MjA4MjYzNjI3OX0.xkrq10OUns0yMWhcKaG8dS4HdBucOG-0VfMLrzlWrTg';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('themeVFinal3', t); if(myChart) updateChart(); }
-    setTheme(localStorage.getItem('themeVFinal3') || 'light');
+    let habits = JSON.parse(localStorage.getItem('my_habits')) || [];
 
-    function removeHabit(id) {
-        if(confirm("Hapus kebiasaan ini?")) {
-            habits = habits.filter(h => h.id !== id);
-            saveAndRender();
-        }
+    // FUNGSI SIMPAN & ENKRIPSI
+    async function saveToCloud() {
+        const id = document.getElementById('syncID').value;
+        const pass = document.getElementById('syncPass').value;
+        if(!id || !pass) return alert("Isi ID dan Password!");
+
+        // Kunci data pakai password
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(habits), pass).toString();
+
+        const { error } = await supabase
+            .from('habit_sync')
+            .upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
+
+        if(!error) alert("Data terenkripsi & tersimpan!");
+        else alert("Gagal simpan: " + error.message);
     }
 
-    function toggleHabit(id) {
-        const key = currentViewDate.toISOString().split('T')[0];
+    // FUNGSI AMBIL & DEKRIPSI
+    async function loadFromCloud() {
+        const id = document.getElementById('syncID').value;
+        const pass = document.getElementById('syncPass').value;
+        if(!id || !pass) return alert("Isi ID dan Password!");
+
+        const { data, error } = await supabase
+            .from('habit_sync').select('data').eq('user_id', id).single();
+
+        if(data) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(data.data.vault, pass);
+                const originalData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                habits = originalData;
+                saveLocally();
+                alert("Data berhasil dipulihkan!");
+            } catch(e) { alert("Password salah!"); }
+        } else { alert("ID tidak ditemukan."); }
+    }
+
+    function addHabit() {
+        const val = document.getElementById('habitInput').value;
+        if(!val) return;
+        habits.push({ id: Date.now(), text: val, history: {} });
+        document.getElementById('habitInput').value = '';
+        saveLocally();
+    }
+
+    function toggle(id) {
         const h = habits.find(x => x.id === id);
-        h.history[key] ? delete h.history[key] : h.history[key] = new Date().toLocaleTimeString();
-        saveAndRender();
+        const today = new Date().toISOString().split('T')[0];
+        h.history[today] = !h.history[today];
+        saveLocally();
     }
 
-    function renderApp() {
-        document.getElementById('displayDate').innerText = currentViewDate.toLocaleDateString('id-ID', { day:'numeric', month:'long' });
+    function saveLocally() {
+        localStorage.setItem('my_habits', JSON.stringify(habits));
+        render();
+    }
+
+    function render() {
         const list = document.getElementById('habitList');
-        const key = currentViewDate.toISOString().split('T')[0];
+        const today = new Date().toISOString().split('T')[0];
         list.innerHTML = '';
-
         habits.forEach(h => {
-            const isDone = !!h.history[key];
-            const count = Object.keys(h.history).filter(d => d.startsWith(key.substring(0, 7))).length;
-            const prog = Math.min((count / h.goal) * 100, 100);
-
+            const isDone = !!h.history[today];
             list.innerHTML += `
                 <div class="habit-item">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start">
-                        <div>
-                            <span class="category-label" style="background:${h.color}20; color:${h.color}">${h.category}</span>
-                            <div style="${isDone ? 'opacity:0.4; text-decoration:line-through' : 'font-weight:700; font-size:1.1rem'}">${h.text}</div>
-                        </div>
-                        <div class="habit-controls">
-                            <div class="btn-delete-top" onclick="removeHabit(${h.id})">×</div>
-                            <div class="checkbox ${isDone ? 'done-check' : ''}" 
-                                 style="border-color:${h.color}; background:${isDone ? h.color : 'transparent'}" 
-                                 onclick="toggleHabit(${h.id})"></div>
-                        </div>
-                    </div>
-                    <div style="font-size:11px; margin-top:15px; display:flex; justify-content:space-between; opacity:0.7">
-                        <span>Progres: ${count}/${h.goal} hari</span>
-                        <span>${h.history[key] || '--:--'}</span>
-                    </div>
-                    <div class="progress-bar-small"><div class="progress-fill" style="width:${prog}%; background:${h.color}"></div></div>
+                    <span style="${isDone?'text-decoration:line-through; opacity:0.5':''}">${h.text}</span>
+                    <div class="checkbox ${isDone?'checked':''}" onclick="toggle(${h.id})">${isDone?'✓':''}</div>
                 </div>`;
         });
-        updateChart(); updateAnalytics(); displayDailyQuote();
     }
 
-    // --- SISA FUNGSI (SAMA) ---
-    function addHabit() {
-        const inp = document.getElementById('habitInput');
-        if(!inp.value) return;
-        habits.push({ id: Date.now(), text: inp.value, category: document.getElementById('habitCategory').value, color: document.getElementById('habitColor').value, goal: parseInt(document.getElementById('habitGoal').value) || 20, history: {} });
-        inp.value = ''; saveAndRender();
-    }
-    function updateAnalytics() {
-        const ym = currentViewDate.toISOString().substring(0, 7);
-        let tT = 0, tD = 0;
-        habits.forEach(h => { tT += h.goal; tD += Object.keys(h.history).filter(d => d.startsWith(ym)).length; });
-        const over = tT ? Math.round((tD/tT)*100) : 0;
-        document.getElementById('overallProgress').innerText = over + "%";
-        document.getElementById('overallFill').style.width = over + "%";
-    }
-    function updateChart() {
-        const days = new Date(currentViewDate.getFullYear(), currentViewDate.getMonth() + 1, 0).getDate();
-        const labels = Array.from({length: days}, (_, i) => i + 1);
-        const ym = currentViewDate.toISOString().substring(0, 7);
-        const datasets = habits.map(h => ({ label: h.text, data: labels.map(day => h.history[`${ym}-${day.toString().padStart(2, '0')}`] ? 1 : 0), backgroundColor: h.color, borderRadius: 5 }));
-        if (myChart) myChart.destroy();
-        myChart = new Chart(document.getElementById('habitChart'), { type: 'bar', data: { labels, datasets }, options: { scales: { x: { stacked: true }, y: { stacked: true, display: false } }, plugins: { legend: { display: false } } } });
-    }
-    function saveAndRender() { localStorage.setItem('habitsVFinal3', JSON.stringify(habits)); renderApp(); }
-    function changeDate(d) { currentViewDate.setDate(currentViewDate.getDate() + d); renderApp(); }
-    function toggleModal(show) { document.getElementById('quoteModal').style.display = show ? 'flex' : 'none'; if(show) renderQuoteList(); }
-    function addQuote() { const inp = document.getElementById('newQuoteInput'); if(inp.value) { myQuotes.push(inp.value); inp.value=''; saveQuotes(); } }
-    function deleteQuote(i) { myQuotes.splice(i,1); saveQuotes(); }
-    function saveQuotes() { localStorage.setItem('quotesVFinal3', JSON.stringify(myQuotes)); renderQuoteList(); displayDailyQuote(); }
-    function renderQuoteList() { document.getElementById('quoteList').innerHTML = myQuotes.map((q,i) => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border)"><span>${q}</span><span onclick="deleteQuote(${i})" style="color:red; cursor:pointer">Hapus</span></div>`).join(''); }
-    function displayDailyQuote() { const day = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000); document.getElementById('dailyQuote').innerText = myQuotes.length ? `"${myQuotes[day % myQuotes.length]}"` : "Tambah motivasi!"; }
-    function renderCategories() { document.getElementById('habitCategory').innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join(''); }
-
-    renderCategories();
-    renderApp();
+    render();
 </script>
 </body>
 </html>
