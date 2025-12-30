@@ -3,67 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyHabit Pro Ultra Final</title>
-    
+    <title>MyHabit Pro Ultra Sync</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
-    
     <style>
         :root { --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --accent: #6366f1; --border: #f1f5f9; }
-        [data-theme="floral"] { --bg: #fff0f6; --card: #ffffff; --text: #a61e4d; --accent: #f06595; --border: #ffdeeb; }
-        [data-theme="matcha"] { --bg: #f1f8e9; --card: #ffffff; --text: #33691e; --accent: #8bc34a; --border: #dcedc8; }
-        [data-theme="sunset"] { --bg: #fff7ed; --card: #ffffff; --text: #9a3412; --accent: #ea580c; --border: #ffedd5; }
-
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px 15px 100px 15px; transition: 0.5s; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px 15px 100px 15px; }
         .app-container { max-width: 500px; margin: auto; }
-        .header-date { text-align: center; margin-bottom: 20px; }
-        .header-date h2 { margin: 0; font-size: 1.3rem; font-weight: 800; }
-        .header-date p { margin: 0; font-size: 0.8rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; }
-
         .card { background: var(--card); padding: 18px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 12px; }
-        .quote-display { text-align: center; font-weight: 700; color: var(--accent); margin-bottom: 15px; font-size: 1rem; }
-        
+        .header-date { text-align: center; margin-bottom: 20px; }
         .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
         .stat-card { background: var(--card); padding: 12px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
         .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--accent); }
-
-        .habit-item { padding: 15px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .checkbox { width: 32px; height: 32px; border: 2.5px solid var(--accent); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s; }
-
-        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; box-sizing: border-box; color: var(--text); }
-        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-sync { background: #10b981; color: white; }
-        .small-list { font-size: 11px; max-height: 100px; overflow-y: auto; margin-bottom: 10px; }
+        .habit-item { padding: 15px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); margin-bottom: 10px; }
+        .mini-history { display: flex; gap: 3px; margin-top: 8px; }
+        .dot { width: 100%; height: 4px; border-radius: 2px; background: #f1f5f9; }
+        .checkbox { width: 32px; height: 32px; border: 2.5px solid var(--accent); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; }
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid var(--border); font-family: inherit; box-sizing: border-box; }
+        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; color: white; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header-date">
-        <p id="txtDay">Memuat...</p>
-        <h2 id="txtFullDate">30 Desember 2025</h2>
+        <p id="txtDay" style="margin:0; font-weight:800; opacity:0.5;">MEMUAT...</p>
+        <h2 id="txtFullDate" style="margin:0;">30 Desember 2025</h2>
     </div>
 
-    <div style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
-        <div onclick="setTheme('basic')" style="width:22px; height:22px; border-radius:50%; background:#6366f1; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-        <div onclick="setTheme('floral')" style="width:22px; height:22px; border-radius:50%; background:#f06595; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-        <div onclick="setTheme('matcha')" style="width:22px; height:22px; border-radius:50%; background:#8bc34a; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-        <div onclick="setTheme('sunset')" style="width:22px; height:22px; border-radius:50%; background:#ea580c; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-    </div>
-
-    <div class="quote-display" id="quoteDisplay">"Memuat motivasi..."</div>
-
-    <div class="card">
+    <div class="card" style="border: 2px solid #10b981;">
+        <b style="font-size:12px; color:#10b981; display:block; margin-bottom:10px;">☁️ CLOUD SYNC (PINDAH PERANGKAT)</b>
         <div style="display:flex; gap:8px;">
-            <input type="text" id="syncID" placeholder="ID Cloud (Contoh: Budi)">
+            <input type="text" id="syncID" placeholder="ID (Contoh: budi77)">
             <input type="password" id="syncPass" placeholder="Kunci Rahasia">
         </div>
-        <button class="btn btn-sync" onclick="saveToCloud()" style="margin-top:8px;">SIMPAN KE CLOUD</button>
-        <span style="font-size:9px; color:#f97316; font-weight:800; text-align:center; display:block; margin-top:8px;">⚠️ SIMPAN SETIAP SELESAI MENGISI!</span>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+            <button class="btn" style="background:#10b981;" onclick="saveToCloud()">SIMPAN KE CLOUD</button>
+            <button class="btn" style="background:#6366f1;" onclick="loadFromCloud()">AMBIL DARI CLOUD</button>
+        </div>
+        <small style="display:block; margin-top:8px; font-size:10px; color:orange;">*Gunakan ID & Kunci yang sama di HP lain untuk ambil data.</small>
     </div>
+
+    <div id="quoteDisplay" style="text-align:center; font-weight:700; color:var(--accent); margin-bottom:15px;"></div>
 
     <div class="stat-grid">
         <div class="stat-card">
@@ -77,101 +60,85 @@
     </div>
 
     <div class="card">
-        <div style="height:160px;"><canvas id="myBarChart"></canvas></div>
-    </div>
-
-    <div class="card" style="border-style:dashed; border-color: #fbbf24;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="font-size:12px; color:#b45309;">📝 KELOLA MOTIVASI</b>
-            <button onclick="document.getElementById('quotePanel').toggleAttribute('hidden')" style="font-size:10px; cursor:pointer;">Buka</button>
-        </div>
-        <div id="quotePanel" hidden style="margin-top:10px;">
-            <div id="quoteEditList" class="small-list"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="newQuoteInp" placeholder="Tambah kata motivasi...">
-                <button onclick="addQuote()" style="width:40px; background:#fbbf24; color:white; border:none; border-radius:8px; font-weight:bold;">+</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="card" style="border-style:dashed;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <b style="font-size:12px;">📂 KELOLA KATEGORI</b>
-            <button onclick="document.getElementById('catPanel').toggleAttribute('hidden')" style="font-size:10px; cursor:pointer;">Buka</button>
-        </div>
-        <div id="catPanel" hidden style="margin-top:10px;">
-            <div id="catEditList" class="small-list"></div>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="newCatInp" placeholder="Nama kategori...">
-                <button onclick="addCat()" style="width:40px; background:var(--accent); color:white; border:none; border-radius:8px;">+</button>
-            </div>
-        </div>
+        <div style="height:150px;"><canvas id="myChart"></canvas></div>
     </div>
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <button onclick="changeDate(-1)" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">◀</button>
+            <button onclick="changeDate(-1)" style="background:none; border:none; cursor:pointer;">◀</button>
             <b id="labelViewDate">Hari Ini</b>
-            <button onclick="changeDate(1)" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">▶</button>
+            <button onclick="changeDate(1)" style="background:none; border:none; cursor:pointer;">▶</button>
         </div>
-        <input type="text" id="habitInp" placeholder="Apa kebiasaan barumu?">
+        <input type="text" id="habitInp" placeholder="Kebiasaan baru...">
         <div style="display:flex; gap:5px;">
             <select id="catSelect"></select>
-            <input type="color" id="habitCol" value="#6366f1" style="width:60px; height:42px; border:none; background:none; cursor:pointer;">
+            <input type="color" id="habitCol" value="#6366f1" style="width:60px; height:42px; border:none; background:none;">
         </div>
-        <button class="btn btn-primary" onclick="addHabit()" style="margin-top:10px;">TAMBAHKAN KEBIASAAN</button>
+        <button class="btn" style="background:var(--accent); margin-top:10px;" onclick="addHabit()">TAMBAH KEBIASAAN</button>
     </div>
 
     <div id="habitList"></div>
 </div>
 
 <script>
-    // --- ISI DISINI ---
-    const SUPABASE_URL = 'https://vhkirvkpvpzedenoflru.supabase.co'; 
+    // GANTI DENGAN DATA SUPABASE KAMU
+    const SUPABASE_URL = 'https://vhkirvkpvpzedenoflru.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoa2lydmtwdnB6ZWRlbm9mbHJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNjAyNzksImV4cCI6MjA4MjYzNjI3OX0.xkrq10OUns0yMWhcKaG8dS4HdBucOG-0VfMLrzlWrTg';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // --- DATA ---
-    let habits = JSON.parse(localStorage.getItem('hab_vF')) || [];
-    let cats = JSON.parse(localStorage.getItem('cat_vF')) || ["Kesehatan", "Belajar", "Produktif"];
-    let quotes = JSON.parse(localStorage.getItem('quo_vF')) || ["Bismillah, mulai hari ini!", "Konsistensi adalah kunci sukses."];
+    let habits = JSON.parse(localStorage.getItem('hab_vFinal')) || [];
+    let cats = JSON.parse(localStorage.getItem('cat_vFinal')) || ["Kesehatan", "Belajar", "Produktif"];
+    let quotes = ["Fokus pada proses.", "Disiplin adalah kunci.", "Hari ini harus lebih baik."];
     let curDate = new Date();
     let chart;
 
-    function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('theme_vF', t); }
-    setTheme(localStorage.getItem('theme_vF') || 'basic');
-
-    // --- FUNGSI CLOUD ---
+    // --- FUNGSI PINDAH PERANGKAT (CLOUD) ---
     async function saveToCloud() {
         const id = document.getElementById('syncID').value;
         const pass = document.getElementById('syncPass').value;
         if(!id || !pass) return alert("Isi ID & Kunci!");
-        const dataToSync = { habits, cats, quotes };
+        
+        const dataToSync = { habits, cats };
         const encrypted = CryptoJS.AES.encrypt(JSON.stringify(dataToSync), pass).toString();
-        const { error } = await supabaseClient.from('habit_sync').upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
-        if(!error) alert("Data berhasil aman di Cloud! ☁️");
-        else alert("Gagal Simpan: " + error.message);
+        
+        const { error } = await supabaseClient.from('habit_sync').upsert({ 
+            user_id: id, data: { vault: encrypted }, updated_at: new Date() 
+        });
+        
+        if(!error) alert("Data Tersimpan di Cloud! ✅");
+        else alert("Gagal: " + error.message);
     }
 
-    // --- FUNGSI KELOLA ---
-    function addQuote() {
-        const v = document.getElementById('newQuoteInp').value.trim();
-        if(v) { quotes.push(v); document.getElementById('newQuoteInp').value=''; save(); }
-    }
-    function delQuote(i) { if(quotes.length > 1) { quotes.splice(i,1); save(); } }
+    async function loadFromCloud() {
+        const id = document.getElementById('syncID').value;
+        const pass = document.getElementById('syncPass').value;
+        if(!id || !pass) return alert("Isi ID & Kunci HP Lama!");
 
-    function addCat() {
-        const v = document.getElementById('newCatInp').value.trim();
-        if(v && !cats.includes(v)) { cats.push(v); document.getElementById('newCatInp').value=''; save(); }
+        const { data, error } = await supabaseClient.from('habit_sync').select('data').eq('user_id', id).single();
+
+        if (error || !data) return alert("Data tidak ditemukan.");
+
+        try {
+            const bytes = CryptoJS.AES.decrypt(data.data.vault, pass);
+            const decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            habits = decryptedData.habits;
+            cats = decryptedData.cats;
+            save(); // Simpan ke HP baru
+            alert("Berhasil! Data HP lama sudah pindah ke sini. 🎉");
+        } catch (e) { alert("Kunci Salah!"); }
     }
-    function delCat(i) { if(cats.length > 1) { cats.splice(i,1); save(); } }
+
+    // --- LOGIKA APLIKASI ---
+    function save() {
+        localStorage.setItem('hab_vFinal', JSON.stringify(habits));
+        localStorage.setItem('cat_vFinal', JSON.stringify(cats));
+        render();
+    }
 
     function addHabit() {
         const text = document.getElementById('habitInp').value;
-        const cat = document.getElementById('catSelect').value;
-        const col = document.getElementById('habitCol').value;
         if(!text) return;
-        habits.push({ id: Date.now(), text, category: cat, color: col, history: {} });
+        habits.push({ id: Date.now(), text, category: document.getElementById('catSelect').value, color: document.getElementById('habitCol').value, history: {} });
         document.getElementById('habitInp').value = '';
         save();
     }
@@ -179,79 +146,67 @@
     function toggle(id) {
         const h = habits.find(x => x.id === id);
         const k = curDate.toISOString().split('T')[0];
-        if(!h.history[k]) {
-            h.history[k] = { done: true, time: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) };
-        } else { delete h.history[k]; }
+        if(!h.history[k]) h.history[k] = { done: true, time: new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) };
+        else delete h.history[k];
         save();
-    }
-
-    function save() {
-        localStorage.setItem('hab_vF', JSON.stringify(habits));
-        localStorage.setItem('cat_vF', JSON.stringify(cats));
-        localStorage.setItem('quo_vF', JSON.stringify(quotes));
-        render();
     }
 
     function changeDate(d) { curDate.setDate(curDate.getDate() + d); render(); }
 
-    // --- FUNGSI GRAFIK ---
     function updateChart() {
-        const ctx = document.getElementById('myBarChart').getContext('2d');
+        const ctx = document.getElementById('myChart').getContext('2d');
         const k = curDate.toISOString().split('T')[0];
-        const dataPoints = cats.map(c => habits.filter(h => h.category === c && h.history[k]).length);
+        const dataSet = cats.map(c => {
+            const hbs = habits.filter(h => h.category === c);
+            return hbs.length ? Math.round((hbs.filter(h => h.history[k]).length / hbs.length) * 100) : 0;
+        });
         if(chart) chart.destroy();
         chart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: cats, datasets: [{ data: dataPoints, backgroundColor: '#6366f1', borderRadius: 6 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+            data: { labels: cats, datasets: [{ data: dataSet, backgroundColor: '#6366f1', borderRadius: 10 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { max: 100 } } }
         });
     }
 
-    // --- RENDER UTAMA ---
     function render() {
         const k = curDate.toISOString().split('T')[0];
-        const isToday = k === new Date().toISOString().split('T')[0];
-
-        // Header
         document.getElementById('txtDay').innerText = curDate.toLocaleDateString('id-ID', {weekday:'long'}).toUpperCase();
         document.getElementById('txtFullDate').innerText = curDate.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        document.getElementById('labelViewDate').innerText = isToday ? "Hari Ini" : curDate.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
         document.getElementById('quoteDisplay').innerText = `"${quotes[curDate.getDate() % quotes.length]}"`;
-
-        // Editor List
-        document.getElementById('quoteEditList').innerHTML = quotes.map((q,i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">${q} <span onclick="delQuote(${i})" style="color:red; cursor:pointer; font-weight:bold;">×</span></div>`).join('');
-        document.getElementById('catEditList').innerHTML = cats.map((c,i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">${c} <span onclick="delCat(${i})" style="color:red; cursor:pointer; font-weight:bold;">×</span></div>`).join('');
         document.getElementById('catSelect').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
 
-        // Habit List
         const list = document.getElementById('habitList');
         list.innerHTML = '';
-        let doneCount = 0;
+        let done = 0;
+
         habits.forEach(h => {
             const ok = h.history[k];
-            if(ok) doneCount++;
+            if(ok) done++;
+            let dots = '';
+            for(let i=6; i>=0; i--) {
+                let d = new Date(curDate); d.setDate(d.getDate()-i);
+                dots += `<div class="dot" style="background:${h.history[d.toISOString().split('T')[0]] ? h.color : '#f1f5f9'}"></div>`;
+            }
+
             list.innerHTML += `
                 <div class="habit-item">
-                    <div style="flex:1">
-                        <span style="font-size:9px; font-weight:800; color:${h.color}; text-transform:uppercase;">${h.category}</span>
-                        <div style="${ok?'text-decoration:line-through;opacity:0.5':'font-weight:700'}; font-size:14px;">${h.text}</div>
-                        ${ok ? `<small style="font-size:9px; opacity:0.5;">Ceklis: ${ok.time}</small>` : ''}
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <span style="font-size:9px; font-weight:800; color:${h.color};">${h.category.toUpperCase()}</span>
+                            <div style="${ok?'text-decoration:line-through; opacity:0.5':'font-weight:700'}">${h.text}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span onclick="if(confirm('Hapus?')){habits=habits.filter(x=>x.id!=${h.id});save()}" style="opacity:0.2; cursor:pointer;">×</span>
+                            <div class="checkbox" onclick="toggle(${h.id})" style="background:${ok?h.color:'none'}; border-color:${h.color}">${ok?'✓':''}</div>
+                        </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <span onclick="if(confirm('Hapus kebiasaan?')){habits=habits.filter(x=>x.id!=${h.id});save();}" style="opacity:0.2; cursor:pointer; font-size:1.2rem;">×</span>
-                        <div class="checkbox" onclick="toggle(${h.id})" style="background:${ok?h.color:'none'}; border-color:${h.color}">${ok?'✓':''}</div>
-                    </div>
+                    <div class="mini-history">${dots}</div>
                 </div>`;
         });
 
-        // Stats
-        const pDaily = habits.length ? Math.round((doneCount/habits.length)*100) : 0;
-        document.getElementById('percDaily').innerText = pDaily + "%";
-        document.getElementById('percMonthly').innerText = pDaily > 0 ? Math.round(pDaily * 0.88) + "%" : "0%";
-
+        document.getElementById('percDaily').innerText = habits.length ? Math.round((done/habits.length)*100) + "%" : "0%";
         updateChart();
     }
-
     render();
 </script>
 </body>
