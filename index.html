@@ -7,121 +7,169 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root { --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --accent: #6366f1; --border: #f1f5f9; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px 15px; }
-        .card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 5px; }
+        [data-theme="dark"] { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --accent: #818cf8; --border: #334155; }
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px 15px 50px 15px; transition: 0.4s; }
+        .app-container { width: 100%; max-width: 500px; margin: auto; }
+        .card { background: var(--card); padding: 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
+        
+        input { width: 100%; padding: 14px; margin: 8px 0; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); box-sizing: border-box; outline: none; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-sync { background: #10b981; color: white; }
-        .habit-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; margin-bottom: 10px; }
-        .checkbox { width: 30px; height: 30px; border: 2px solid var(--accent); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        
+        .habit-item { padding: 18px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 15px; background: var(--card); }
+        .checkbox { width: 32px; height: 32px; border: 2.5px solid var(--accent); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .checked { background: var(--accent); color: white; }
+        
+        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+        .progress-bar { height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-fill { height: 100%; background: var(--accent); transition: width 0.5s; }
     </style>
 </head>
 <body>
 
-<div style="max-width: 500px; margin: auto;">
-    <h2 style="text-align:center">MyHabit Cloud ☁️</h2>
+<div class="app-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin:0">MyHabit Pro</h2>
+        <button onclick="toggleTheme()" style="background:none; border:none; font-size:20px; cursor:pointer;">🌓</button>
+    </div>
 
     <div class="card">
-        <h4 style="margin:0 0 10px 0">🔐 Login & Sync</h4>
-        <input type="text" id="syncID" placeholder="ID Sinkron (Bebas)">
-        <input type="password" id="syncPass" placeholder="Password (Kunci Data)">
-        <div style="display:flex; gap:10px;">
-            <button class="btn btn-sync" onclick="saveToCloud()">SIMPAN KE CLOUD</button>
-            <button class="btn btn-primary" onclick="loadFromCloud()">AMBIL DARI CLOUD</button>
+        <div style="font-size: 11px; font-weight: 800; opacity: 0.6;">PROGRESS BULAN INI</div>
+        <div class="stat-val" id="overallProgress">0%</div>
+        <div class="progress-bar"><div id="overallFill" class="progress-fill"></div></div>
+        <canvas id="habitChart" style="margin-top: 20px; max-height: 150px;"></canvas>
+    </div>
+
+    <div class="card">
+        <div style="font-weight: 800; font-size: 13px; margin-bottom: 10px;">☁️ CLOUD SYNC (TERENKRIPSI)</div>
+        <input type="text" id="syncID" placeholder="ID Sinkronisasi">
+        <input type="password" id="syncPass" placeholder="Password Kunci">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button class="btn btn-sync" onclick="saveToCloud()">SIMPAN</button>
+            <button class="btn btn-primary" onclick="loadFromCloud()">AMBIL</button>
         </div>
     </div>
 
     <div class="card">
-        <input type="text" id="habitInput" placeholder="Kebiasaan baru...">
-        <button class="btn btn-primary" onclick="addHabit()">TAMBAH HABIT</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <button onclick="changeDate(-1)" style="background:none; border:none; font-size:1.5rem;">◀</button>
+            <span id="displayDate" style="font-weight:800;"></span>
+            <button onclick="changeDate(1)" style="background:none; border:none; font-size:1.5rem;">▶</button>
+        </div>
+        <input type="text" id="habitInput" placeholder="Tambah kebiasaan baru...">
+        <button class="btn btn-primary" onclick="addHabit()">TAMBAH</button>
     </div>
 
     <div id="habitList"></div>
 </div>
 
 <script>
-    // --- KONFIGURASI ---
+    // === GANTI DENGAN DATA SUPABASE KAMU ===
     const SUPABASE_URL = 'https://vhkirvkpvpzedenoflru.supabase.co'; 
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoa2lydmtwdnB6ZWRlbm9mbHJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNjAyNzksImV4cCI6MjA4MjYzNjI3OX0.xkrq10OUns0yMWhcKaG8dS4HdBucOG-0VfMLrzlWrTg';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let habits = JSON.parse(localStorage.getItem('my_habits')) || [];
+    let habits = JSON.parse(localStorage.getItem('pro_habits')) || [];
+    let currentViewDate = new Date();
+    let myChart;
 
-    // FUNGSI SIMPAN & ENKRIPSI
+    // --- LOGIC DATABASE & ENKRIPSI ---
     async function saveToCloud() {
         const id = document.getElementById('syncID').value;
         const pass = document.getElementById('syncPass').value;
-        if(!id || !pass) return alert("Isi ID dan Password!");
-
-        // Kunci data pakai password
+        if(!id || !pass) return alert("Isi ID & Pass!");
+        
         const encrypted = CryptoJS.AES.encrypt(JSON.stringify(habits), pass).toString();
-
-        const { error } = await supabase
-            .from('habit_sync')
-            .upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
-
-        if(!error) alert("Data terenkripsi & tersimpan!");
-        else alert("Gagal simpan: " + error.message);
+        const { error } = await supabase.from('habit_sync').upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
+        if(!error) alert("Data Aman di Cloud!");
     }
 
-    // FUNGSI AMBIL & DEKRIPSI
     async function loadFromCloud() {
         const id = document.getElementById('syncID').value;
         const pass = document.getElementById('syncPass').value;
-        if(!id || !pass) return alert("Isi ID dan Password!");
-
-        const { data, error } = await supabase
-            .from('habit_sync').select('data').eq('user_id', id).single();
-
+        const { data } = await supabase.from('habit_sync').select('data').eq('user_id', id).single();
         if(data) {
             try {
                 const bytes = CryptoJS.AES.decrypt(data.data.vault, pass);
-                const originalData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                habits = originalData;
+                habits = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
                 saveLocally();
-                alert("Data berhasil dipulihkan!");
-            } catch(e) { alert("Password salah!"); }
-        } else { alert("ID tidak ditemukan."); }
+                alert("Data Pulih!");
+            } catch(e) { alert("Password Salah!"); }
+        }
     }
 
+    // --- LOGIC HABIT ---
     function addHabit() {
         const val = document.getElementById('habitInput').value;
         if(!val) return;
-        habits.push({ id: Date.now(), text: val, history: {} });
+        habits.push({ id: Date.now(), text: val, history: {}, color: '#6366f1' });
         document.getElementById('habitInput').value = '';
         saveLocally();
     }
 
     function toggle(id) {
         const h = habits.find(x => x.id === id);
-        const today = new Date().toISOString().split('T')[0];
-        h.history[today] = !h.history[today];
+        const key = currentViewDate.toISOString().split('T')[0];
+        h.history[key] = !h.history[key];
         saveLocally();
     }
 
     function saveLocally() {
-        localStorage.setItem('my_habits', JSON.stringify(habits));
+        localStorage.setItem('pro_habits', JSON.stringify(habits));
         render();
+    }
+
+    function toggleTheme() {
+        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.body.setAttribute('data-theme', theme);
+    }
+
+    function changeDate(d) { currentViewDate.setDate(currentViewDate.getDate() + d); render(); }
+
+    function updateChart() {
+        const ctx = document.getElementById('habitChart').getContext('2d');
+        const labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+        const data = [12, 19, 3, 5, 2, 3, 7]; // Ini contoh, bisa dihubungkan ke data asli nanti
+
+        if(myChart) myChart.destroy();
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{ label: 'Aktivitas', data: data, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }]
+            },
+            options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+        });
     }
 
     function render() {
         const list = document.getElementById('habitList');
-        const today = new Date().toISOString().split('T')[0];
+        const key = currentViewDate.toISOString().split('T')[0];
+        document.getElementById('displayDate').innerText = currentViewDate.toLocaleDateString('id-ID', { day:'numeric', month:'long' });
+        
         list.innerHTML = '';
+        let doneCount = 0;
         habits.forEach(h => {
-            const isDone = !!h.history[today];
+            const isDone = !!h.history[key];
+            if(isDone) doneCount++;
             list.innerHTML += `
                 <div class="habit-item">
-                    <span style="${isDone?'text-decoration:line-through; opacity:0.5':''}">${h.text}</span>
+                    <span style="${isDone?'text-decoration:line-through;opacity:0.5;font-weight:400':'font-weight:700'}">${h.text}</span>
                     <div class="checkbox ${isDone?'checked':''}" onclick="toggle(${h.id})">${isDone?'✓':''}</div>
                 </div>`;
         });
+
+        const progress = habits.length ? Math.round((doneCount / habits.length) * 100) : 0;
+        document.getElementById('overallProgress').innerText = progress + "%";
+        document.getElementById('overallFill').style.width = progress + "%";
+        updateChart();
     }
 
     render();
