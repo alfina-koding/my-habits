@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyHabit Pro Sync</title>
+    <title>MyHabit Pro Ultra</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -18,37 +18,46 @@
         .app-container { width: 100%; max-width: 500px; margin: auto; }
         .card { background: var(--card); padding: 20px; border-radius: 28px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid var(--border); }
         
-        input { width: 100%; padding: 14px; margin: 8px 0; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); box-sizing: border-box; outline: none; }
+        input, select { width: 100%; padding: 14px; margin: 8px 0; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); box-sizing: border-box; outline: none; font-family: inherit; }
         .btn { width: 100%; padding: 15px; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px; }
         .btn-primary { background: var(--accent); color: white; }
         .btn-sync { background: #10b981; color: white; }
         
         .habit-item { padding: 18px; border-radius: 24px; border: 1px solid var(--border); margin-bottom: 15px; background: var(--card); }
-        .checkbox { width: 32px; height: 32px; border: 2.5px solid var(--accent); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .checked { background: var(--accent); color: white; }
+        .cat-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; margin-bottom: 10px; display: inline-block; }
         
-        .stat-val { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
-        .progress-bar { height: 8px; background: var(--border); border-radius: 10px; overflow: hidden; margin-top: 10px; }
-        .progress-fill { height: 100%; background: var(--accent); transition: width 0.5s; }
+        .checkbox { width: 32px; height: 32px; border: 2.5px solid; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .checked::after { content: '✓'; font-weight: 900; color: white; }
+        
+        .quote-box { text-align: center; font-weight: 700; color: var(--accent); margin-bottom: 5px; min-height: 40px; font-style: italic; }
+        .manage-quotes { text-align: center; font-size: 10px; color: var(--accent); cursor: pointer; text-decoration: underline; margin-bottom: 20px; opacity: 0.7; }
+        
+        #quoteModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 30px; width: 85%; max-width: 400px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
         <h2 style="margin:0">MyHabit Pro</h2>
         <button onclick="toggleTheme()" style="background:none; border:none; font-size:20px; cursor:pointer;">🌓</button>
     </div>
 
+    <div class="quote-box" id="quoteDisplay">"Memuat motivasi..."</div>
+    <div class="manage-quotes" onclick="toggleQuoteModal(true)">+ Kelola Motivasi Saya</div>
+
     <div class="card">
-        <div style="font-size: 11px; font-weight: 800; opacity: 0.6;">PROGRESS BULAN INI</div>
-        <div class="stat-val" id="overallProgress">0%</div>
-        <div class="progress-bar"><div id="overallFill" class="progress-fill"></div></div>
-        <canvas id="habitChart" style="margin-top: 20px; max-height: 150px;"></canvas>
+        <div style="font-size: 10px; font-weight: 800; opacity: 0.6;">PROGRESS HARIAN</div>
+        <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent);" id="overallProgress">0%</div>
+        <div class="progress-bar" style="height:8px; background:var(--border); border-radius:10px; overflow:hidden; margin-top:10px;">
+            <div id="overallFill" style="height:100%; background:var(--accent); width:0%; transition:width 0.5s;"></div>
+        </div>
+        <canvas id="habitChart" style="margin-top: 20px; max-height: 120px;"></canvas>
     </div>
 
     <div class="card">
-        <div style="font-weight: 800; font-size: 13px; margin-bottom: 10px;">☁️ CLOUD SYNC (TERENKRIPSI)</div>
+        <div style="font-weight: 800; font-size: 11px; margin-bottom: 10px; opacity: 0.7;">☁️ CLOUD SYNC</div>
         <input type="text" id="syncID" placeholder="ID Sinkronisasi">
         <input type="password" id="syncPass" placeholder="Password Kunci">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -59,36 +68,56 @@
 
     <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <button onclick="changeDate(-1)" style="background:none; border:none; font-size:1.5rem;">◀</button>
+            <button onclick="changeDate(-1)" style="background:none; border:none; font-size:1.2rem;">◀</button>
             <span id="displayDate" style="font-weight:800;"></span>
-            <button onclick="changeDate(1)" style="background:none; border:none; font-size:1.5rem;">▶</button>
+            <button onclick="changeDate(1)" style="background:none; border:none; font-size:1.2rem;">▶</button>
         </div>
-        <input type="text" id="habitInput" placeholder="Tambah kebiasaan baru...">
+        <input type="text" id="habitInput" placeholder="Nama kebiasaan...">
+        <div style="display: flex; gap: 10px;">
+            <select id="habitCat" style="flex:2">
+                <option value="Kesehatan">Kesehatan</option>
+                <option value="Belajar">Belajar</option>
+                <option value="Produktif">Produktif</option>
+            </select>
+            <input type="color" id="habitColor" value="#6366f1" style="flex:1; height: 48px; padding:2px;">
+        </div>
         <button class="btn btn-primary" onclick="addHabit()">TAMBAH</button>
     </div>
 
     <div id="habitList"></div>
 </div>
 
+<div id="quoteModal">
+    <div class="modal-content">
+        <h3 style="margin-top:0">Motivasi Saya</h3>
+        <input type="text" id="newQuoteInput" placeholder="Ketik kalimat motivasi...">
+        <button class="btn btn-primary" onclick="addQuote()">TAMBAH MOTIVASI</button>
+        <div id="quoteList" style="margin-top:20px; max-height: 200px; overflow-y: auto;"></div>
+        <button class="btn" style="background:var(--border);" onclick="toggleQuoteModal(false)">TUTUP</button>
+    </div>
+</div>
+
 <script>
-    // === GANTI DENGAN DATA SUPABASE KAMU ===
+    // === ISI DATA SUPABASE KAMU ===
     const SUPABASE_URL = 'https://vhkirvkpvpzedenoflru.supabase.co'; 
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoa2lydmtwdnB6ZWRlbm9mbHJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNjAyNzksImV4cCI6MjA4MjYzNjI3OX0.xkrq10OUns0yMWhcKaG8dS4HdBucOG-0VfMLrzlWrTg';
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let habits = JSON.parse(localStorage.getItem('pro_habits')) || [];
+    let habits = JSON.parse(localStorage.getItem('ultra_habits')) || [];
+    let myQuotes = JSON.parse(localStorage.getItem('my_quotes')) || ["Satu langkah kecil hari ini."];
     let currentViewDate = new Date();
     let myChart;
 
-    // --- LOGIC DATABASE & ENKRIPSI ---
+    // --- CLOUD LOGIC ---
     async function saveToCloud() {
         const id = document.getElementById('syncID').value;
         const pass = document.getElementById('syncPass').value;
-        if(!id || !pass) return alert("Isi ID & Pass!");
-        
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(habits), pass).toString();
+        if(!id || !pass) return alert("ID & Password wajib!");
+        // Simpan habits dan quotes sekaligus dalam satu paket data
+        const package = { habits, quotes: myQuotes };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(package), pass).toString();
         const { error } = await supabase.from('habit_sync').upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
-        if(!error) alert("Data Aman di Cloud!");
+        if(!error) alert("Semua Data & Motivasi Tersimpan!");
     }
 
     async function loadFromCloud() {
@@ -98,18 +127,53 @@
         if(data) {
             try {
                 const bytes = CryptoJS.AES.decrypt(data.data.vault, pass);
-                habits = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                saveLocally();
-                alert("Data Pulih!");
+                const decrypted = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+                habits = decrypted.habits || [];
+                myQuotes = decrypted.quotes || ["Satu langkah kecil hari ini."];
+                saveLocally(); alert("Data & Motivasi Pulih!");
             } catch(e) { alert("Password Salah!"); }
         }
     }
 
-    // --- LOGIC HABIT ---
+    // --- MOTIVASI LOGIC ---
+    function toggleQuoteModal(show) {
+        document.getElementById('quoteModal').style.display = show ? 'flex' : 'none';
+        if(show) renderQuoteList();
+    }
+
+    function addQuote() {
+        const inp = document.getElementById('newQuoteInput');
+        if(inp.value) {
+            myQuotes.push(inp.value);
+            inp.value = '';
+            saveLocally();
+            renderQuoteList();
+        }
+    }
+
+    function deleteQuote(index) {
+        myQuotes.splice(index, 1);
+        saveLocally();
+        renderQuoteList();
+    }
+
+    function renderQuoteList() {
+        const list = document.getElementById('quoteList');
+        list.innerHTML = myQuotes.map((q, i) => `
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;">
+                <span>${q}</span>
+                <span style="color:red; cursor:pointer;" onclick="deleteQuote(${i})">Hapus</span>
+            </div>
+        `).join('');
+    }
+
+    // --- HABIT LOGIC ---
     function addHabit() {
-        const val = document.getElementById('habitInput').value;
-        if(!val) return;
-        habits.push({ id: Date.now(), text: val, history: {}, color: '#6366f1' });
+        const text = document.getElementById('habitInput').value;
+        const cat = document.getElementById('habitCat').value;
+        const color = document.getElementById('habitColor').value;
+        if(!text) return;
+        habits.push({ id: Date.now(), text, category: cat, color, history: {} });
         document.getElementById('habitInput').value = '';
         saveLocally();
     }
@@ -121,29 +185,34 @@
         saveLocally();
     }
 
+    function removeHabit(id) {
+        if(confirm("Hapus kebiasaan ini?")) {
+            habits = habits.filter(h => h.id !== id);
+            saveLocally();
+        }
+    }
+
     function saveLocally() {
-        localStorage.setItem('pro_habits', JSON.stringify(habits));
+        localStorage.setItem('ultra_habits', JSON.stringify(habits));
+        localStorage.setItem('my_quotes', JSON.stringify(myQuotes));
         render();
     }
 
     function toggleTheme() {
-        const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.body.setAttribute('data-theme', theme);
+        const current = document.body.getAttribute('data-theme');
+        document.body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
 
     function changeDate(d) { currentViewDate.setDate(currentViewDate.getDate() + d); render(); }
 
     function updateChart() {
         const ctx = document.getElementById('habitChart').getContext('2d');
-        const labels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-        const data = [12, 19, 3, 5, 2, 3, 7]; // Ini contoh, bisa dihubungkan ke data asli nanti
-
         if(myChart) myChart.destroy();
         myChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
-                datasets: [{ label: 'Aktivitas', data: data, borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }]
+                labels: ['M','S','S','R','K','J','S'],
+                datasets: [{ label: 'Progress', data: [3, 2, 5, 4, 6, 4, 7], borderColor: '#6366f1', tension: 0.4, fill: true, backgroundColor: 'rgba(99, 102, 241, 0.1)' }]
             },
             options: { plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
         });
@@ -154,6 +223,10 @@
         const key = currentViewDate.toISOString().split('T')[0];
         document.getElementById('displayDate').innerText = currentViewDate.toLocaleDateString('id-ID', { day:'numeric', month:'long' });
         
+        // Kutipan Acak
+        const randomQuote = myQuotes[new Date().getDate() % myQuotes.length] || "Tambah motivasimu!";
+        document.getElementById('quoteDisplay').innerText = `"${randomQuote}"`;
+        
         list.innerHTML = '';
         let doneCount = 0;
         habits.forEach(h => {
@@ -161,8 +234,16 @@
             if(isDone) doneCount++;
             list.innerHTML += `
                 <div class="habit-item">
-                    <span style="${isDone?'text-decoration:line-through;opacity:0.5;font-weight:400':'font-weight:700'}">${h.text}</span>
-                    <div class="checkbox ${isDone?'checked':''}" onclick="toggle(${h.id})">${isDone?'✓':''}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                        <div>
+                            <span class="cat-tag" style="background:${h.color}20; color:${h.color}">${h.category}</span>
+                            <div style="${isDone?'text-decoration:line-through;opacity:0.5;font-weight:400':'font-weight:800; font-size:1.1rem'}">${h.text}</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:center; gap:10px;">
+                            <span onclick="removeHabit(${h.id})" style="color:#ff4d4d; font-size:18px; cursor:pointer">×</span>
+                            <div class="checkbox ${isDone?'checked':''}" style="border-color:${h.color}; background:${isDone?h.color:'transparent'}" onclick="toggle(${h.id})">${isDone?'✓':''}</div>
+                        </div>
+                    </div>
                 </div>`;
         });
 
