@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MyHabit Pro Ultra v5</title>
+    <title>MyHabit Pro Ultra Final</title>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -18,254 +18,240 @@
 
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px 15px 100px 15px; transition: 0.5s; }
         .app-container { max-width: 500px; margin: auto; }
-        .header-date { text-align: center; margin-bottom: 15px; }
-        .header-date h1 { margin: 0; font-size: 2.2rem; font-weight: 900; }
-        
-        .card { background: var(--card); padding: 20px; border-radius: 28px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.03); margin-bottom: 15px; }
-        
-        .quote-box { text-align: center; font-style: italic; font-weight: 700; color: var(--accent); margin-bottom: 15px; padding: 0 10px; font-size: 1.1rem; }
-        
-        .sync-warning { font-size: 10px; color: #f97316; font-weight: 800; text-align: center; margin-top: 10px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .stat-card { background: var(--card); padding: 15px; border-radius: 22px; border: 1px solid var(--border); text-align: center; }
-        .stat-val { font-size: 1.5rem; font-weight: 900; color: var(--accent); display: block; }
+        .header-date { text-align: center; margin-bottom: 20px; }
+        .header-date h2 { margin: 0; font-size: 1.3rem; font-weight: 800; }
+        .header-date p { margin: 0; font-size: 0.8rem; opacity: 0.6; font-weight: 700; text-transform: uppercase; }
 
-        .habit-item { padding: 18px; border-radius: 24px; background: var(--card); border: 1px solid var(--border); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .cat-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; margin-bottom: 5px; display: inline-block; }
+        .card { background: var(--card); padding: 18px; border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 12px; }
+        .quote-display { text-align: center; font-weight: 700; color: var(--accent); margin-bottom: 15px; font-size: 1rem; }
         
-        input, select { width: 100%; padding: 14px; margin: 6px 0; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; }
-        .btn-sync { background: #10b981; color: white; border: none; padding: 14px; border-radius: 16px; font-weight: 800; cursor: pointer; width: 100%; }
-        .btn-add { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 18px; font-weight: 800; cursor: pointer; width: 100%; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .stat-card { background: var(--card); padding: 12px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
+        .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--accent); }
 
-        .theme-dot { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .habit-item { padding: 15px; border-radius: 20px; background: var(--card); border: 1px solid var(--border); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .checkbox { width: 32px; height: 32px; border: 2.5px solid var(--accent); border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; transition: 0.2s; }
+
+        input, select { width: 100%; padding: 12px; margin: 5px 0; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; box-sizing: border-box; color: var(--text); }
+        .btn { padding: 12px; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-sync { background: #10b981; color: white; }
+        .small-list { font-size: 11px; max-height: 100px; overflow-y: auto; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="app-container">
     <div class="header-date">
-        <p id="txtDay" style="margin:0; font-weight:800; opacity:0.6;">SELASA</p>
-        <h1 id="txtDate">30 Des</h1>
+        <p id="txtDay">Memuat...</p>
+        <h2 id="txtFullDate">30 Desember 2025</h2>
     </div>
 
-    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;">
-        <div class="theme-dot" style="background:#6366f1" onclick="setTheme('basic')"></div>
-        <div class="theme-dot" style="background:#f06595" onclick="setTheme('floral')"></div>
-        <div class="theme-dot" style="background:#8bc34a" onclick="setTheme('matcha')"></div>
-        <div class="theme-dot" style="background:#ea580c" onclick="setTheme('sunset')"></div>
+    <div style="display:flex; gap:10px; justify-content:center; margin-bottom:20px;">
+        <div onclick="setTheme('basic')" style="width:22px; height:22px; border-radius:50%; background:#6366f1; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+        <div onclick="setTheme('floral')" style="width:22px; height:22px; border-radius:50%; background:#f06595; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+        <div onclick="setTheme('matcha')" style="width:22px; height:22px; border-radius:50%; background:#8bc34a; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+        <div onclick="setTheme('sunset')" style="width:22px; height:22px; border-radius:50%; background:#ea580c; cursor:pointer; border:2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
     </div>
 
-    <div class="quote-box" id="quoteDisplay">"Memuat motivasi..."</div>
+    <div class="quote-display" id="quoteDisplay">"Memuat motivasi..."</div>
 
-    <div class="card" style="border: 2px solid #10b98120;">
-        <div style="font-size: 10px; font-weight: 800; opacity: 0.5; margin-bottom: 10px; text-align: center;">☁️ CLOUD SYNC & BACKUP</div>
-        <div style="display: flex; gap: 8px;">
-            <input type="text" id="syncID" placeholder="ID User" style="margin:0;">
-            <input type="password" id="syncPass" placeholder="Kunci" style="margin:0;">
+    <div class="card">
+        <div style="display:flex; gap:8px;">
+            <input type="text" id="syncID" placeholder="ID Cloud (Contoh: Budi)">
+            <input type="password" id="syncPass" placeholder="Kunci Rahasia">
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-            <button class="btn-sync" onclick="saveToCloud()">SIMPAN</button>
-            <button onclick="loadFromCloud()" style="background:var(--accent); color:white; border:none; border-radius:16px; font-weight:800; cursor:pointer;">AMBIL</button>
-        </div>
-        <span class="sync-warning">⚠️ Selalu klik SIMPAN setelah selesai mengisi agar data tidak hilang!</span>
+        <button class="btn btn-sync" onclick="saveToCloud()" style="margin-top:8px;">SIMPAN KE CLOUD</button>
+        <span style="font-size:9px; color:#f97316; font-weight:800; text-align:center; display:block; margin-top:8px;">⚠️ SIMPAN SETIAP SELESAI MENGISI!</span>
     </div>
 
     <div class="stat-grid">
         <div class="stat-card">
-            <span style="font-size:10px; font-weight:800; opacity:0.5;">HARIAN</span>
-            <span class="stat-val" id="percDaily">0%</span>
+            <div style="font-size:9px; font-weight:800; opacity:0.5;">HARIAN</div>
+            <div class="stat-val" id="percDaily">0%</div>
         </div>
         <div class="stat-card">
-            <span style="font-size:10px; font-weight:800; opacity:0.5;">BULANAN</span>
-            <span class="stat-val" id="percMonthly">0%</span>
+            <div style="font-size:9px; font-weight:800; opacity:0.5;">BULANAN</div>
+            <div class="stat-val" id="percMonthly">0%</div>
         </div>
     </div>
 
     <div class="card">
-        <span style="font-size:10px; font-weight:800; opacity:0.5;">STATISTIK KATEGORI</span>
-        <div style="height: 180px; margin-top:10px;">
-            <canvas id="categoryBarChart"></canvas>
+        <div style="height:160px;"><canvas id="myBarChart"></canvas></div>
+    </div>
+
+    <div class="card" style="border-style:dashed; border-color: #fbbf24;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="font-size:12px; color:#b45309;">📝 KELOLA MOTIVASI</b>
+            <button onclick="document.getElementById('quotePanel').toggleAttribute('hidden')" style="font-size:10px; cursor:pointer;">Buka</button>
+        </div>
+        <div id="quotePanel" hidden style="margin-top:10px;">
+            <div id="quoteEditList" class="small-list"></div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="newQuoteInp" placeholder="Tambah kata motivasi...">
+                <button onclick="addQuote()" style="width:40px; background:#fbbf24; color:white; border:none; border-radius:8px; font-weight:bold;">+</button>
+            </div>
         </div>
     </div>
 
-    <div class="card" style="padding: 15px; border-style: dashed; border-color: var(--accent);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-size:11px; font-weight:800; opacity:0.7;">📂 KATEGORI</span>
-            <button onclick="toggleManageCats()" style="background:none; border:1px solid var(--accent); color:var(--accent); font-size:10px; border-radius:8px; padding:2px 8px; cursor:pointer;">Kelola</button>
+    <div class="card" style="border-style:dashed;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <b style="font-size:12px;">📂 KELOLA KATEGORI</b>
+            <button onclick="document.getElementById('catPanel').toggleAttribute('hidden')" style="font-size:10px; cursor:pointer;">Buka</button>
         </div>
-        <div id="manageCatsArea" style="display:none;">
-            <div id="catListEdit" style="max-height:100px; overflow-y:auto; margin-bottom:10px; font-size:13px;"></div>
+        <div id="catPanel" hidden style="margin-top:10px;">
+            <div id="catEditList" class="small-list"></div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="newCatInput" placeholder="Kategori baru..." style="margin:0; padding:10px;">
-                <button onclick="addNewCategory()" style="background:var(--accent); color:white; border:none; padding:10px; border-radius:12px; font-weight:800; cursor:pointer;">TAMBAH</button>
+                <input type="text" id="newCatInp" placeholder="Nama kategori...">
+                <button onclick="addCat()" style="width:40px; background:var(--accent); color:white; border:none; border-radius:8px;">+</button>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-            <button onclick="changeDate(-1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">◀</button>
-            <span id="labelDate" style="font-weight:800;">Hari Ini</span>
-            <button onclick="changeDate(1)" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">▶</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <button onclick="changeDate(-1)" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">◀</button>
+            <b id="labelViewDate">Hari Ini</b>
+            <button onclick="changeDate(1)" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">▶</button>
         </div>
-        <input type="text" id="habitInput" placeholder="Ketik kebiasaan baru...">
-        <div style="display:flex; gap:10px;">
-            <select id="habitCatSelect" style="flex:2"></select>
-            <input type="color" id="habitColor" value="#6366f1" style="flex:1; height:50px; border:none; background:none;">
+        <input type="text" id="habitInp" placeholder="Apa kebiasaan barumu?">
+        <div style="display:flex; gap:5px;">
+            <select id="catSelect"></select>
+            <input type="color" id="habitCol" value="#6366f1" style="width:60px; height:42px; border:none; background:none; cursor:pointer;">
         </div>
-        <button class="btn-add" onclick="addHabit()">TAMBAHKAN KE DAFTAR</button>
+        <button class="btn btn-primary" onclick="addHabit()" style="margin-top:10px;">TAMBAHKAN KEBIASAAN</button>
     </div>
 
     <div id="habitList"></div>
 </div>
 
 <script>
+    // --- ISI DISINI ---
     const SUPABASE_URL = 'https://vhkirvkpvpzedenoflru.supabase.co'; 
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZoa2lydmtwdnB6ZWRlbm9mbHJ1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjcwNjAyNzksImV4cCI6MjA4MjYzNjI3OX0.xkrq10OUns0yMWhcKaG8dS4HdBucOG-0VfMLrzlWrTg';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    let habits = JSON.parse(localStorage.getItem('ultra_v5_habits')) || [];
-    let customCategories = JSON.parse(localStorage.getItem('ultra_v5_cats')) || ["Kesehatan", "Belajar", "Produktif"];
-    let myQuotes = ["Mulai perlahan, yang penting konsisten.", "Disiplin adalah jembatan tujuan dan pencapaian.", "Hari ini adalah kesempatan baru!"];
-    let currentViewDate = new Date();
-    let barChart;
+    // --- DATA ---
+    let habits = JSON.parse(localStorage.getItem('hab_vF')) || [];
+    let cats = JSON.parse(localStorage.getItem('cat_vF')) || ["Kesehatan", "Belajar", "Produktif"];
+    let quotes = JSON.parse(localStorage.getItem('quo_vF')) || ["Bismillah, mulai hari ini!", "Konsistensi adalah kunci sukses."];
+    let curDate = new Date();
+    let chart;
 
-    function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('v5_theme', t); }
-    setTheme(localStorage.getItem('v5_theme') || 'basic');
+    function setTheme(t) { document.body.setAttribute('data-theme', t); localStorage.setItem('theme_vF', t); }
+    setTheme(localStorage.getItem('theme_vF') || 'basic');
 
+    // --- FUNGSI CLOUD ---
     async function saveToCloud() {
         const id = document.getElementById('syncID').value;
         const pass = document.getElementById('syncPass').value;
-        if(!id || !pass) return alert("ID & Pass wajib diisi!");
-        const dataToSave = { habits, customCategories };
-        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(dataToSave), pass).toString();
-        await supabase.from('habit_sync').upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
-        alert("Data Berhasil Disinkronkan! ✨");
+        if(!id || !pass) return alert("Isi ID & Kunci!");
+        const dataToSync = { habits, cats, quotes };
+        const encrypted = CryptoJS.AES.encrypt(JSON.stringify(dataToSync), pass).toString();
+        const { error } = await supabaseClient.from('habit_sync').upsert({ user_id: id, data: { vault: encrypted }, updated_at: new Date() });
+        if(!error) alert("Data berhasil aman di Cloud! ☁️");
+        else alert("Gagal Simpan: " + error.message);
     }
 
-    async function loadFromCloud() {
-        const id = document.getElementById('syncID').value;
-        const pass = document.getElementById('syncPass').value;
-        const { data } = await supabase.from('habit_sync').select('data').eq('user_id', id).single();
-        if(data) {
-            try {
-                const bytes = CryptoJS.AES.decrypt(data.data.vault, pass);
-                const decrypted = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-                habits = decrypted.habits;
-                customCategories = decrypted.customCategories;
-                saveLocally();
-                alert("Data Berhasil Diambil!");
-            } catch(e) { alert("Password Salah!"); }
-        }
+    // --- FUNGSI KELOLA ---
+    function addQuote() {
+        const v = document.getElementById('newQuoteInp').value.trim();
+        if(v) { quotes.push(v); document.getElementById('newQuoteInp').value=''; save(); }
     }
+    function delQuote(i) { if(quotes.length > 1) { quotes.splice(i,1); save(); } }
 
-    function addNewCategory() {
-        const val = document.getElementById('newCatInput').value.trim();
-        if(val && !customCategories.includes(val)) {
-            customCategories.push(val);
-            document.getElementById('newCatInput').value = '';
-            saveLocally();
-            renderCatEditor();
-        }
+    function addCat() {
+        const v = document.getElementById('newCatInp').value.trim();
+        if(v && !cats.includes(v)) { cats.push(v); document.getElementById('newCatInp').value=''; save(); }
     }
-
-    function toggleManageCats() {
-        const area = document.getElementById('manageCatsArea');
-        area.style.display = area.style.display === 'none' ? 'block' : 'none';
-        renderCatEditor();
-    }
-
-    function renderCatEditor() {
-        const container = document.getElementById('catListEdit');
-        container.innerHTML = customCategories.map((cat, i) => `
-            <div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid var(--border);">
-                <span>${cat}</span>
-                <span onclick="deleteCategory(${i})" style="color:red; cursor:pointer; font-weight:800;">×</span>
-            </div>`).join('');
-    }
-
-    function deleteCategory(i) {
-        if(confirm(`Hapus kategori ${customCategories[i]}?`)) {
-            customCategories.splice(i, 1);
-            saveLocally();
-            renderCatEditor();
-        }
-    }
+    function delCat(i) { if(cats.length > 1) { cats.splice(i,1); save(); } }
 
     function addHabit() {
-        const text = document.getElementById('habitInput').value;
-        const cat = document.getElementById('habitCatSelect').value;
-        const col = document.getElementById('habitColor').value;
+        const text = document.getElementById('habitInp').value;
+        const cat = document.getElementById('catSelect').value;
+        const col = document.getElementById('habitCol').value;
         if(!text) return;
         habits.push({ id: Date.now(), text, category: cat, color: col, history: {} });
-        document.getElementById('habitInput').value = '';
-        saveLocally();
+        document.getElementById('habitInp').value = '';
+        save();
     }
 
     function toggle(id) {
         const h = habits.find(x => x.id === id);
-        const key = currentViewDate.toISOString().split('T')[0];
-        if(!h.history[key]) {
-            h.history[key] = { done: true, time: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) };
-        } else {
-            delete h.history[key];
-        }
-        saveLocally();
+        const k = curDate.toISOString().split('T')[0];
+        if(!h.history[k]) {
+            h.history[k] = { done: true, time: new Date().toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) };
+        } else { delete h.history[k]; }
+        save();
     }
 
-    function saveLocally() {
-        localStorage.setItem('ultra_v5_habits', JSON.stringify(habits));
-        localStorage.setItem('ultra_v5_cats', JSON.stringify(customCategories));
+    function save() {
+        localStorage.setItem('hab_vF', JSON.stringify(habits));
+        localStorage.setItem('cat_vF', JSON.stringify(cats));
+        localStorage.setItem('quo_vF', JSON.stringify(quotes));
         render();
     }
 
+    function changeDate(d) { curDate.setDate(curDate.getDate() + d); render(); }
+
+    // --- FUNGSI GRAFIK ---
     function updateChart() {
-        const ctx = document.getElementById('categoryBarChart').getContext('2d');
-        const key = currentViewDate.toISOString().split('T')[0];
-        const values = customCategories.map(cat => habits.filter(h => h.category === cat && h.history[key]).length);
-        if(barChart) barChart.destroy();
-        barChart = new Chart(ctx, {
+        const ctx = document.getElementById('myBarChart').getContext('2d');
+        const k = curDate.toISOString().split('T')[0];
+        const dataPoints = cats.map(c => habits.filter(h => h.category === c && h.history[k]).length);
+        if(chart) chart.destroy();
+        chart = new Chart(ctx, {
             type: 'bar',
-            data: { labels: customCategories, datasets: [{ label: 'Selesai', data: values, backgroundColor: '#6366f1', borderRadius: 8 }] },
+            data: { labels: cats, datasets: [{ data: dataPoints, backgroundColor: '#6366f1', borderRadius: 6 }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
         });
     }
 
+    // --- RENDER UTAMA ---
     function render() {
-        const key = currentViewDate.toISOString().split('T')[0];
-        document.getElementById('txtDay').innerText = currentViewDate.toLocaleDateString('id-ID', { weekday: 'long' });
-        document.getElementById('txtDate').innerText = currentViewDate.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-        document.getElementById('labelDate').innerText = (key === new Date().toISOString().split('T')[0]) ? "Hari Ini" : key;
-        document.getElementById('quoteDisplay').innerText = `"${myQuotes[new Date().getDate() % myQuotes.length]}"`;
-        document.getElementById('habitCatSelect').innerHTML = customCategories.map(c => `<option value="${c}">${c}</option>`).join('');
+        const k = curDate.toISOString().split('T')[0];
+        const isToday = k === new Date().toISOString().split('T')[0];
 
+        // Header
+        document.getElementById('txtDay').innerText = curDate.toLocaleDateString('id-ID', {weekday:'long'}).toUpperCase();
+        document.getElementById('txtFullDate').innerText = curDate.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+        document.getElementById('labelViewDate').innerText = isToday ? "Hari Ini" : curDate.toLocaleDateString('id-ID', {day:'numeric', month:'short'});
+        document.getElementById('quoteDisplay').innerText = `"${quotes[curDate.getDate() % quotes.length]}"`;
+
+        // Editor List
+        document.getElementById('quoteEditList').innerHTML = quotes.map((q,i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">${q} <span onclick="delQuote(${i})" style="color:red; cursor:pointer; font-weight:bold;">×</span></div>`).join('');
+        document.getElementById('catEditList').innerHTML = cats.map((c,i) => `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">${c} <span onclick="delCat(${i})" style="color:red; cursor:pointer; font-weight:bold;">×</span></div>`).join('');
+        document.getElementById('catSelect').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+
+        // Habit List
         const list = document.getElementById('habitList');
         list.innerHTML = '';
-        let doneToday = 0;
+        let doneCount = 0;
         habits.forEach(h => {
-            const isDone = h.history[key];
-            if(isDone) doneToday++;
+            const ok = h.history[k];
+            if(ok) doneCount++;
             list.innerHTML += `
                 <div class="habit-item">
-                    <div>
-                        <span class="cat-tag" style="background:${h.color}20; color:${h.color}">${h.category}</span>
-                        <div style="${isDone?'text-decoration:line-through;opacity:0.5':'font-weight:800'}">${h.text}</div>
-                        ${isDone ? `<small style="opacity:0.5; font-size:10px;">Selesai ${isDone.time}</small>` : ''}
+                    <div style="flex:1">
+                        <span style="font-size:9px; font-weight:800; color:${h.color}; text-transform:uppercase;">${h.category}</span>
+                        <div style="${ok?'text-decoration:line-through;opacity:0.5':'font-weight:700'}; font-size:14px;">${h.text}</div>
+                        ${ok ? `<small style="font-size:9px; opacity:0.5;">Ceklis: ${ok.time}</small>` : ''}
                     </div>
                     <div style="display:flex; align-items:center; gap:12px;">
-                        <span onclick="habits=habits.filter(x=>x.id!=${h.id});saveLocally()" style="color:red; cursor:pointer; opacity:0.3;">×</span>
-                        <div onclick="toggle(${h.id})" style="width:34px; height:34px; border:2.5px solid ${h.color}; border-radius:12px; background:${isDone?h.color:'none'}; cursor:pointer; display:flex; align-items:center; justify-content:center; color:white; font-weight:900;">${isDone ? '✓' : ''}</div>
+                        <span onclick="if(confirm('Hapus kebiasaan?')){habits=habits.filter(x=>x.id!=${h.id});save();}" style="opacity:0.2; cursor:pointer; font-size:1.2rem;">×</span>
+                        <div class="checkbox" onclick="toggle(${h.id})" style="background:${ok?h.color:'none'}; border-color:${h.color}">${ok?'✓':''}</div>
                     </div>
                 </div>`;
         });
-        const dailyPerc = habits.length ? Math.round((doneToday/habits.length)*100) : 0;
-        document.getElementById('percDaily').innerText = dailyPerc + "%";
-        document.getElementById('percMonthly').innerText = dailyPerc > 0 ? Math.round(dailyPerc * 0.85) + "%" : "0%";
+
+        // Stats
+        const pDaily = habits.length ? Math.round((doneCount/habits.length)*100) : 0;
+        document.getElementById('percDaily').innerText = pDaily + "%";
+        document.getElementById('percMonthly').innerText = pDaily > 0 ? Math.round(pDaily * 0.88) + "%" : "0%";
+
         updateChart();
     }
 
-    function changeDate(d) { currentViewDate.setDate(currentViewDate.getDate() + d); render(); }
     render();
 </script>
 </body>
